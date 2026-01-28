@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div>
       <Image
-        src="/446.jpg"
+        src="/cartoon_bedroom.webp"
         alt="Background image"
         quality={100}
         fill
