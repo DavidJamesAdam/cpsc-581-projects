@@ -83,14 +83,14 @@ export default function DavidButton() {
     >
       <Button disableRipple
         onClick={playRecord}
-        sx={{
+        sx={{padding: 0,
           zIndex: 10,
           animation: isPlaying ? `${spin} 1s linear infinite` : "none",
         }}
       >
         <Image
           src="/blind-guardian-vinyl-record-svgrepo-com.svg"
-          width={100}
+          width={75}
           height={50}
           alt="svg of record"
         />
