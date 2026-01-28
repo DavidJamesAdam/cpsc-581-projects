@@ -89,8 +89,8 @@ export default function DavidButton() {
         }}
       >
         <Image
-          src="/vinyl-record-svgrepo-com.svg"
-          width={50}
+          src="/blind-guardian-vinyl-record-svgrepo-com.svg"
+          width={100}
           height={50}
           alt="svg of record"
         />
