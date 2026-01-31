@@ -124,6 +124,30 @@ export default function hankButton() {
           justifyContent: "flex-start",
         }}
       >
+        <Image
+          src="/VB.svg"
+          alt="VB"
+          width={200}
+          height={200}
+          style={{
+            objectFit: "contain",
+            maxWidth: "30%",
+            maxHeight: "30%",
+            marginLeft: "5px",
+          }}
+        />
+        <Image
+          src="/SB3.png"
+          alt="Snowboard"
+          width={240}
+          height={380}
+          style={{
+            objectFit: "contain",
+            maxWidth: "75%",
+            maxHeight: "75%",
+            marginLeft: "27px",
+          }}
+        />
       </Box>
     </Box>
   );
