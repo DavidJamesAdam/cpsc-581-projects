@@ -1,0 +1,15 @@
+.animate {
+  animation: move 0.6s ease-out infinite;
+}
+
+@keyframes move {
+  0% {
+    transform: translateX(-30);
+  }
+  60% {
+    transform: translateX(30);
+  }
+  100% {
+    transform: translateX(-30);
+  }
+}
