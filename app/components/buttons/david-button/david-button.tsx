@@ -49,7 +49,7 @@ export default function DavidButton() {
     const id = Date.now() + Math.random();
     const leftPct = Math.random() * 80+5;
     const topPct = Math.random() * 80+5;
-    const sizePx = 6 + Math.random() * 12;
+    const sizePx = 6 + Math.random() * 22;
     const newSparkle = {
       id,
       left: leftPct + "%",
@@ -61,7 +61,7 @@ export default function DavidButton() {
 
     window.setTimeout(() => {
       setSparkles((prev) => prev.filter((sparkle: any) => sparkle.id !== id));
-    }, 1100);
+    }, 3100);
   };
 
   // Toggle play/stop
@@ -139,7 +139,8 @@ export default function DavidButton() {
           <i
             key={s.id}
             className="sparkle"
-            style={{ left: s.left, top: s.top, ['--delay' as any]: `${(i % 20) * 400}ms`, ['--size' as any]: s.size }}
+            style={{ left: s.left, top: s.top, ['--size' as any]: s.size }}
+            data-sparkle = "💪"
           />
         ))}
       </span>
