@@ -5,6 +5,7 @@ import HankButton from "./components/buttons/hank-button/hank-button";
 import CollinButton from "./components/buttons/collin-button/collin-button";
 import Image from "next/image";
 import AnimatedImage from './components/animated-image/animated-image';
+import AnimatedBook from "./components/animated-book/animated-book";
 
 export default function Home() {
   return (
@@ -43,6 +44,9 @@ export default function Home() {
         </div>
         <div className="relative left-260 top-85">
           <AnimatedImage />
+        </div>
+        <div className="relative left-140 top-5">
+          <AnimatedBook />
         </div>
         <HankButton />
         <CollinButton />
