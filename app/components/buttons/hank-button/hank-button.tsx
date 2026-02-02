@@ -74,14 +74,40 @@ export default function hankButton() {
         <Box
           sx={{
             position: "absolute",
-            right: "8px",
-            top: "50%",
+            right: "20px",
+            top: "40%",
             transform: "translateY(-50%)",
             width: "8px",
             height: "8px",
             borderRadius: "50%",
             backgroundColor: "#2E5C8A",
             border: "1px solid #1a3d5a",
+          }}
+        />
+
+        {/* Pink oval below handle (left door) */}
+        <Box
+          sx={{
+            position: "absolute",
+            right: "40px",
+            top: "calc(40% + 18px)",
+            width: "22px",
+            height: "12px",
+            borderRadius: "999px",
+            backgroundColor: "rgba(255, 111, 179, 0.5)",
+          }}
+        />
+
+        {/* Top outer corner 90° black sector (left door) */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: -1,
+            left: -1,
+            width: 135,
+            height: 135,
+            backgroundColor: "#000",
+            borderRadius: "0 0 135px 0",
           }}
         />
       </Box>
@@ -109,14 +135,40 @@ export default function hankButton() {
         <Box
           sx={{
             position: "absolute",
-            left: "8px",
-            top: "50%",
+            left: "20px",
+            top: "40%",
             transform: "translateY(-50%)",
             width: "8px",
             height: "8px",
             borderRadius: "50%",
             backgroundColor: "#2E5C8A",
             border: "1px solid #1a3d5a",
+          }}
+        />
+
+        {/* Pink oval below handle (right door) */}
+        <Box
+          sx={{
+            position: "absolute",
+            left: "40px",
+            top: "calc(40% + 18px)",
+            width: "22px",
+            height: "12px",
+            borderRadius: "999px",
+            backgroundColor: "rgba(255, 111, 179, 0.5)",
+          }}
+        />
+
+        {/* Top outer corner 90° black sector (right door) */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: -1,
+            right: -1,
+            width: 135,
+            height: 145,
+            backgroundColor: "#000",
+            borderRadius: "0 0 0 145px",
           }}
         />
       </Box>
@@ -183,18 +235,91 @@ export default function hankButton() {
           />
         </Box>
         {/* SB3 - stays in place */}
-        <Image
-          src="/SB3.png"
-          alt="Snowboard"
-          width={240}
-          height={380}
-          style={{
-            objectFit: "contain",
+        <Box
+          sx={{
+            position: "relative",
+            width: "240px",
+            height: "380px",
             maxWidth: "75%",
             maxHeight: "75%",
             marginLeft: "106px",
           }}
-        />
+        >
+          <Image
+            src="/SB3.png"
+            alt="Snowboard"
+            width={240}
+            height={380}
+            style={{
+              objectFit: "contain",
+              width: "100%",
+              height: "100%",
+            }}
+          />
+        </Box>
+
+        {/* SB-Man slides from top of SB3 when door opens */}
+        <Box
+          sx={{
+            position: "absolute",
+            left: "220px",
+            bottom: "290px",
+             transform: "scaleX(-1) rotate(-18deg)",
+            transformOrigin: "center",
+            opacity: 1,
+            pointerEvents: "none",
+            "@keyframes sbManSlideToLeftBottom": {
+              "0%": {
+                left: "220px",
+                bottom: "290px",
+                  transform: "scaleX(-1) rotate(-18deg)",
+                  opacity: 1,
+              },
+              "25%": {
+                left: "180px",
+                bottom: "290px",
+                 transform: "scaleX(-1) rotate(-18deg)",
+                 opacity: 1,
+              },
+              "30%": {
+                left: "140px",
+                bottom: "290px",
+                 transform: "scaleX(-1) rotate(60deg)",
+                 opacity: 1,
+              },
+              "80%": {
+                left: "85px",
+                bottom: "30px",
+                 transform: "scaleX(-1) rotate(60deg)",
+                 opacity: 1,
+              },
+              "90%": {
+                left: "80px",
+                bottom: "-5px",
+                 transform: "scaleX(-1) rotate(-18deg)",
+                  opacity: 1,
+              },
+              "100%": {
+                left: "80px",
+                bottom: "-5px",
+                  transform: "scaleX(-1) rotate(-18deg)",
+                  opacity: 0,
+              },
+            },
+            animation: isOpen
+              ? "sbManSlideToLeftBottom 2s ease-in-out infinite"
+              : "none",
+            animationDelay: isOpen ? "0.8s" : "0s",
+          }}
+        >
+          <Image
+            src="/SB-Man.svg"
+            alt="SB-Man"
+            width={30}
+            height={30}
+            style={{ objectFit: "contain" }}
+          />
+        </Box>
       </Box>
     </Box>
   );
