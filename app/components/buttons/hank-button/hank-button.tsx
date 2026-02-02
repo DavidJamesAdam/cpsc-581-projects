@@ -183,18 +183,91 @@ export default function hankButton() {
           />
         </Box>
         {/* SB3 - stays in place */}
-        <Image
-          src="/SB3.png"
-          alt="Snowboard"
-          width={240}
-          height={380}
-          style={{
-            objectFit: "contain",
+        <Box
+          sx={{
+            position: "relative",
+            width: "240px",
+            height: "380px",
             maxWidth: "75%",
             maxHeight: "75%",
             marginLeft: "106px",
           }}
-        />
+        >
+          <Image
+            src="/SB3.png"
+            alt="Snowboard"
+            width={240}
+            height={380}
+            style={{
+              objectFit: "contain",
+              width: "100%",
+              height: "100%",
+            }}
+          />
+        </Box>
+
+        {/* SB-Man slides from top of SB3 when door opens */}
+        <Box
+          sx={{
+            position: "absolute",
+            left: "220px",
+            bottom: "290px",
+             transform: "scaleX(-1) rotate(-18deg)",
+            transformOrigin: "center",
+            opacity: 1,
+            pointerEvents: "none",
+            "@keyframes sbManSlideToLeftBottom": {
+              "0%": {
+                left: "220px",
+                bottom: "290px",
+                  transform: "scaleX(-1) rotate(-18deg)",
+                  opacity: 1,
+              },
+              "25%": {
+                left: "180px",
+                bottom: "290px",
+                 transform: "scaleX(-1) rotate(-18deg)",
+                 opacity: 1,
+              },
+              "30%": {
+                left: "140px",
+                bottom: "290px",
+                 transform: "scaleX(-1) rotate(60deg)",
+                 opacity: 1,
+              },
+              "80%": {
+                left: "85px",
+                bottom: "30px",
+                 transform: "scaleX(-1) rotate(60deg)",
+                 opacity: 1,
+              },
+              "90%": {
+                left: "80px",
+                bottom: "-5px",
+                 transform: "scaleX(-1) rotate(-18deg)",
+                  opacity: 1,
+              },
+              "100%": {
+                left: "80px",
+                bottom: "-5px",
+                  transform: "scaleX(-1) rotate(-18deg)",
+                  opacity: 0,
+              },
+            },
+            animation: isOpen
+              ? "sbManSlideToLeftBottom 2s ease-in-out infinite"
+              : "none",
+            animationDelay: isOpen ? "0.8s" : "0s",
+          }}
+        >
+          <Image
+            src="/SB-Man.svg"
+            alt="SB-Man"
+            width={30}
+            height={30}
+            style={{ objectFit: "contain" }}
+          />
+        </Box>
       </Box>
     </Box>
   );
