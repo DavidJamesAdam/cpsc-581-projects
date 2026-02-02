@@ -44,6 +44,8 @@ export default function DavidButton({
       setIsPlaying(false);
       window.dispatchEvent(new Event("animate-image"));
       window.dispatchEvent(new Event("animate-book"));
+      window.dispatchEvent(new Event("animate-game-boy"));
+      window.dispatchEvent(new Event("animate-logo"));
       return;
     }
 
@@ -51,6 +53,9 @@ export default function DavidButton({
     play();
     window.dispatchEvent(new Event("animate-image"));
     window.dispatchEvent(new Event("animate-book"));
+    window.dispatchEvent(new Event("animate-game-boy"));
+
+    window.dispatchEvent(new Event("animate-logo"));
   });
 
   // Manage intervals: continuous sparkles and notes only when playing
@@ -144,16 +149,16 @@ export default function DavidButton({
           alt="svg of record"
         />
         {children}
-              <span className="sparkles" aria-hidden>
-        {sparkles.map((s: Sparkle) => (
-          <i
-            key={s.id}
-            className="sparkle"
-            style={{ left: s.left, top: s.top, ["--size" as string]: s.size }}
-            data-sparkle="💪"
-          />
-        ))}
-      </span>
+        <span className="sparkles" aria-hidden>
+          {sparkles.map((s: Sparkle) => (
+            <i
+              key={s.id}
+              className="sparkle"
+              style={{ left: s.left, top: s.top, ["--size" as string]: s.size }}
+              data-sparkle="💪"
+            />
+          ))}
+        </span>
       </Button>
       {notes.map((note) => (
         <span key={note.id} className="music-note" style={{ left: note.left }}>

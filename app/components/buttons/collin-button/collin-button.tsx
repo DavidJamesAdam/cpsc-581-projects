@@ -58,6 +58,8 @@ export default function CollinTVButton() {
 
   const handleToggle = () => {
     if (isAnimating) return;
+    window.dispatchEvent(new Event("animate-game-boy"));
+    window.dispatchEvent(new Event("animate-logo"));
 
     setIsAnimating(true);
 

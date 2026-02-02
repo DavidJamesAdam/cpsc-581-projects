@@ -7,6 +7,8 @@ import Image from "next/image";
 import AnimatedImage from "./components/animated-image/animated-image";
 import AnimatedBook from "./components/animated-book/animated-book";
 import { useState } from "react";
+import AnimatedGameBoy from "./components/animated-game-boy/animated-game-boy";
+import AnimatedLogo from "./components/animated-ucalgary-logo/animated-ucalgary-logo";
 
 export default function Home() {
   const [imageTrigger, setImageTrigger] = useState(0);
@@ -45,13 +47,19 @@ export default function Home() {
           alt="svg of record"
         />
       </div>
-      <div className="relative left-340 top-105">
+      <div className="relative left-340 top-125">
         <AnimatedImage />
       </div>
-      <div className="relative left-190 top-30">
+      <div className="flex relative left-190 top-50 w-80 justify-between">
         <AnimatedBook trigger={bookTrigger} />
+        <div>
+          <AnimatedGameBoy />
+        </div>
       </div>
-      <div className="relative left-450 top-85">
+        <div className="relative left-205 -top-70">
+          <AnimatedLogo />
+        </div>
+      <div className="relative left-450 top-80">
         <HankButton />
       </div>
       <div className="relative left-100 -top-64">

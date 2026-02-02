@@ -18,6 +18,7 @@ export default function hankButton({
   const handleClick = () => {
     setIsOpen(!isOpen);
     window.dispatchEvent(new CustomEvent("animate-image"));
+    window.dispatchEvent(new Event("animate-logo"));
   };
 
   useEffect(() => {
@@ -68,8 +69,8 @@ export default function hankButton({
         position: "absolute",
         right: "calc(5% - 15px)",
         bottom: "calc(5% + 230px)",
-        width: "270px",
-        height: "440px",
+        width: "330px",
+        height: "500px",
         cursor: "pointer",
         zIndex: 5,
         perspective: "1000px",
@@ -304,45 +305,45 @@ export default function hankButton({
             position: "absolute",
             left: "220px",
             bottom: "290px",
-            transform: "scaleX(-1) rotate(-18deg)",
+            // transform: "scaleX(-1) rotate(-18deg)",
             transformOrigin: "center",
             opacity: 1,
             pointerEvents: "none",
             "@keyframes sbManSlideToLeftBottom": {
               "0%": {
                 left: "220px",
-                bottom: "290px",
-                transform: "scaleX(-1) rotate(-18deg)",
+                bottom: "320px",
+                transform: "rotate(18deg)",
                 opacity: 1,
               },
-              "25%": {
-                left: "180px",
-                bottom: "290px",
-                transform: "scaleX(-1) rotate(-18deg)",
-                opacity: 1,
-              },
+              // "25%": {
+              //   left: "180px",
+              //   bottom: "290px",
+              //   transform: " rotate(18deg)",
+              //   opacity: 1,
+              // },
               "30%": {
-                left: "140px",
+                left: "160px",
                 bottom: "290px",
-                transform: "scaleX(-1) rotate(60deg)",
+                transform: " rotate(10deg)",
                 opacity: 1,
               },
               "80%": {
-                left: "85px",
+                left: "100px",
                 bottom: "30px",
-                transform: "scaleX(-1) rotate(60deg)",
+                transform: " rotate(60deg)",
                 opacity: 1,
               },
-              "90%": {
-                left: "80px",
-                bottom: "-5px",
-                transform: "scaleX(-1) rotate(-18deg)",
-                opacity: 1,
-              },
+              // "90%": {
+              //   left: "80px",
+              //   bottom: "-5px",
+              //   transform: " rotate(-18deg)",
+              //   opacity: 1,
+              // },
               "100%": {
                 left: "80px",
                 bottom: "-5px",
-                transform: "scaleX(-1) rotate(-18deg)",
+                transform: " rotate(-18deg)",
                 opacity: 0,
               },
             },
