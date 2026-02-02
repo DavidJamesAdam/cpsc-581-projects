@@ -74,14 +74,40 @@ export default function hankButton() {
         <Box
           sx={{
             position: "absolute",
-            right: "8px",
-            top: "50%",
+            right: "20px",
+            top: "40%",
             transform: "translateY(-50%)",
             width: "8px",
             height: "8px",
             borderRadius: "50%",
             backgroundColor: "#2E5C8A",
             border: "1px solid #1a3d5a",
+          }}
+        />
+
+        {/* Pink oval below handle (left door) */}
+        <Box
+          sx={{
+            position: "absolute",
+            right: "40px",
+            top: "calc(40% + 18px)",
+            width: "22px",
+            height: "12px",
+            borderRadius: "999px",
+            backgroundColor: "rgba(255, 111, 179, 0.5)",
+          }}
+        />
+
+        {/* Top outer corner 90° black sector (left door) */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: -1,
+            left: -1,
+            width: 135,
+            height: 135,
+            backgroundColor: "#000",
+            borderRadius: "0 0 135px 0",
           }}
         />
       </Box>
@@ -109,14 +135,40 @@ export default function hankButton() {
         <Box
           sx={{
             position: "absolute",
-            left: "8px",
-            top: "50%",
+            left: "20px",
+            top: "40%",
             transform: "translateY(-50%)",
             width: "8px",
             height: "8px",
             borderRadius: "50%",
             backgroundColor: "#2E5C8A",
             border: "1px solid #1a3d5a",
+          }}
+        />
+
+        {/* Pink oval below handle (right door) */}
+        <Box
+          sx={{
+            position: "absolute",
+            left: "40px",
+            top: "calc(40% + 18px)",
+            width: "22px",
+            height: "12px",
+            borderRadius: "999px",
+            backgroundColor: "rgba(255, 111, 179, 0.5)",
+          }}
+        />
+
+        {/* Top outer corner 90° black sector (right door) */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: -1,
+            right: -1,
+            width: 135,
+            height: 145,
+            backgroundColor: "#000",
+            borderRadius: "0 0 0 145px",
           }}
         />
       </Box>
