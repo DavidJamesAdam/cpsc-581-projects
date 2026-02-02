@@ -10,7 +10,7 @@ export default function AnimatedBook () {
   const staticSrc = '/static-book.png';
 
   useEffect(() => {
-    const toggle = () => {
+    const onAnimateBook = () => {
       setIsAnimating(prev => {
         const next = !prev;
 
@@ -23,9 +23,9 @@ export default function AnimatedBook () {
       });
     };
 
-    window.addEventListener('animate-image', toggle);
+    window.addEventListener('animate-book', onAnimateBook);
     return () =>
-      window.removeEventListener('animate-image', toggle);
+      window.removeEventListener('animate-book', onAnimateBook);
   }, []);
 
   return (

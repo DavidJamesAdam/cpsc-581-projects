@@ -1,15 +1,18 @@
-'use client';
+"use client";
 
 import DavidButton from "./components/buttons/david-button/david-button";
 import HankButton from "./components/buttons/hank-button/hank-button";
 import CollinButton from "./components/buttons/collin-button/collin-button";
 import Image from "next/image";
-import AnimatedImage from './components/animated-image/animated-image';
+import AnimatedImage from "./components/animated-image/animated-image";
 import AnimatedBook from "./components/animated-book/animated-book";
+import { useState } from "react";
 
 export default function Home() {
+  const [imageTrigger, setImageTrigger] = useState(0);
+  const [bookTrigger, setBookTrigger] = useState(0);
   return (
-      <main className="flex min-h-screen w-full flex-col items-center justify-between sm:items-start">
+    <main className="flex min-h-screen w-full flex-col items-center justify-between sm:items-start">
       <Image
         src="/cartoon_bedroom.webp"
         alt="Background image"
@@ -21,35 +24,39 @@ export default function Home() {
           zIndex: -1,
         }}
       />
-        <div className="grid grid-cols-2 relative left-80 top-45">
-          <DavidButton />
-          <Image
-            src="/green-vinyl-record-svgrepo-com.svg"
-            width={75}
-            height={50}
-            alt="svg of record"
-          />
-          <Image
-            src="/blue-vinyl-record-svgrepo-com.svg"
-            width={75}
-            height={50}
-            alt="svg of record"
-          />
-          <Image
-            src="/purple-vinyl-record-svgrepo-com.svg"
-            width={75}
-            height={50}
-            alt="svg of record"
-          />
-        </div>
-        <div className="relative left-260 top-85">
-          <AnimatedImage />
-        </div>
-        <div className="relative left-140 top-5">
-          <AnimatedBook />
-        </div>
+      <div className="grid grid-cols-2 relative left-80 top-45">
+        <DavidButton />
+        <Image
+          src="/green-vinyl-record-svgrepo-com.svg"
+          width={75}
+          height={50}
+          alt="svg of record"
+        />
+        <Image
+          src="/blue-vinyl-record-svgrepo-com.svg"
+          width={75}
+          height={50}
+          alt="svg of record"
+        />
+        <Image
+          src="/purple-vinyl-record-svgrepo-com.svg"
+          width={75}
+          height={50}
+          alt="svg of record"
+        />
+      </div>
+      <div className="relative left-260 top-85">
+        <AnimatedImage />
+      </div>
+      <div className="relative left-140 top-5">
+        <AnimatedBook trigger={bookTrigger} />
+      </div>
+      <div>
         <HankButton />
+      </div>
+      <div>
         <CollinButton />
-      </main>
+      </div>
+    </main>
   );
 }

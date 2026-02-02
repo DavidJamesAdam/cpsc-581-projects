@@ -43,12 +43,14 @@ export default function DavidButton({
       stop();
       setIsPlaying(false);
       window.dispatchEvent(new Event("animate-image"));
+      window.dispatchEvent(new Event("animate-book"));
       return;
     }
 
     setIsPlaying(true);
     play();
     window.dispatchEvent(new Event("animate-image"));
+    window.dispatchEvent(new Event("animate-book"));
   });
 
   // Manage intervals: continuous sparkles and notes only when playing

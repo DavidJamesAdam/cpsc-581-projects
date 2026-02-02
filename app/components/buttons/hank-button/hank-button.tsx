@@ -3,12 +3,17 @@ import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import Image from "next/image";
 
-export default function hankButton() {
+export default function hankButton({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [vbAnimation, setVbAnimation] = useState(false);
 
   const handleClick = () => {
     setIsOpen(!isOpen);
+    window.dispatchEvent(new CustomEvent('animate-image'));
   };
 
   useEffect(() => {
@@ -50,7 +55,7 @@ export default function hankButton() {
           boxShadow: "inset 0 0 10px rgba(0,0,0,0.3)",
         }}
       />
-      
+
       {/* Left door */}
       <Box
         sx={{
@@ -195,25 +200,25 @@ export default function hankButton() {
           sx={{
             position: "absolute",
             left: "5px",
-            bottom: "0px", 
+            bottom: "0px",
             "@keyframes vbFallAndSlide": {
               "0%": {
                 transform: "translate(0, 0)",
               },
               "10%": {
-                transform: "translate(0, 25px)", 
+                transform: "translate(0, 25px)",
               },
               "20%": {
-                transform: "translate(0, 5px)", 
+                transform: "translate(0, 5px)",
               },
               "30%": {
-                transform: "translate(0, 25px)", 
+                transform: "translate(0, 25px)",
               },
               "40%": {
-                transform: "translate(0, 18px)", 
+                transform: "translate(0, 18px)",
               },
               "50%": {
-                transform: "translate(0, 25px)", 
+                transform: "translate(0, 25px)",
               },
               "100%": {
                 transform: "translate(0, 25px)",
