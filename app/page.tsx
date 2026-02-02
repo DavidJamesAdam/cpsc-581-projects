@@ -1,11 +1,15 @@
+'use client';
+
 import DavidButton from "./components/buttons/david-button/david-button";
 import HankButton from "./components/buttons/hank-button/hank-button";
 import CollinButton from "./components/buttons/collin-button/collin-button";
 import Image from "next/image";
+import AnimatedImage from './components/animated-image/animated-image';
+import AnimatedBook from "./components/animated-book/animated-book";
 
 export default function Home() {
   return (
-    <div>
+      <main className="flex min-h-screen w-full flex-col items-center justify-between sm:items-start">
       <Image
         src="/cartoon_bedroom.webp"
         alt="Background image"
@@ -17,8 +21,7 @@ export default function Home() {
           zIndex: -1,
         }}
       />
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 sm:items-start">
-        <div className="grid grid-cols-2 relative left-65">
+        <div className="grid grid-cols-2 relative left-80 top-45">
           <DavidButton />
           <Image
             src="/green-vinyl-record-svgrepo-com.svg"
@@ -39,9 +42,14 @@ export default function Home() {
             alt="svg of record"
           />
         </div>
+        <div className="relative left-260 top-85">
+          <AnimatedImage />
+        </div>
+        <div className="relative left-140 top-5">
+          <AnimatedBook />
+        </div>
         <HankButton />
         <CollinButton />
       </main>
-    </div>
   );
 }
