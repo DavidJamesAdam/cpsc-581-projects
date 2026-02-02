@@ -1,7 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Box } from "@mui/material";
 import Image from "next/image";
+import "./styles.css";
 
 export default function hankButton({
   children,
@@ -10,13 +11,36 @@ export default function hankButton({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [vbAnimation, setVbAnimation] = useState(false);
+  type Sparkle = { id: number; left: string; top: string; size: string };
+  const [sparkles, setSparkles] = useState<Sparkle[]>([]);
+  const sparkleIntervalRef = useRef<number | null>(null);
 
   const handleClick = () => {
     setIsOpen(!isOpen);
-    window.dispatchEvent(new CustomEvent('animate-image'));
+    window.dispatchEvent(new CustomEvent("animate-image"));
   };
 
   useEffect(() => {
+    const addSparkle = () => {
+      const id = Date.now() + Math.random();
+      const leftPct = Math.random() * 70;
+      const topPct = Math.random() * 70;
+      const sizePx = 6 + Math.random() * 22;
+      const newSparkle = {
+        id,
+        left: leftPct + "%",
+        top: topPct + "%",
+        size: sizePx + "px",
+      };
+
+      setSparkles((prev) => [...prev, newSparkle]);
+
+      window.setTimeout(() => {
+        setSparkles((prev) =>
+          prev.filter((sparkle: Sparkle) => sparkle.id !== id),
+        );
+      }, 3100);
+    };
     if (isOpen) {
       // Start VB animation when door opens
       const timer = setTimeout(() => {
@@ -24,9 +48,18 @@ export default function hankButton({
       }, 500); // Wait for door to open
       return () => clearTimeout(timer);
     } else {
+      if (!sparkleIntervalRef.current) {
+        sparkleIntervalRef.current = window.setInterval(addSparkle, 400);
+      }
       // Reset animation when door closes
       setVbAnimation(false);
     }
+    return () => {
+      if (sparkleIntervalRef.current) {
+        clearInterval(sparkleIntervalRef.current);
+        sparkleIntervalRef.current = null;
+      }
+    };
   }, [isOpen]);
 
   return (
@@ -224,7 +257,9 @@ export default function hankButton({
                 transform: "translate(0, 25px)",
               },
             },
-            animation: vbAnimation ? "vbFallAndSlide 2.5s ease-in-out forwards" : "none",
+            animation: vbAnimation
+              ? "vbFallAndSlide 2.5s ease-in-out forwards"
+              : "none",
           }}
         >
           <Image
@@ -269,7 +304,7 @@ export default function hankButton({
             position: "absolute",
             left: "220px",
             bottom: "290px",
-             transform: "scaleX(-1) rotate(-18deg)",
+            transform: "scaleX(-1) rotate(-18deg)",
             transformOrigin: "center",
             opacity: 1,
             pointerEvents: "none",
@@ -277,38 +312,38 @@ export default function hankButton({
               "0%": {
                 left: "220px",
                 bottom: "290px",
-                  transform: "scaleX(-1) rotate(-18deg)",
-                  opacity: 1,
+                transform: "scaleX(-1) rotate(-18deg)",
+                opacity: 1,
               },
               "25%": {
                 left: "180px",
                 bottom: "290px",
-                 transform: "scaleX(-1) rotate(-18deg)",
-                 opacity: 1,
+                transform: "scaleX(-1) rotate(-18deg)",
+                opacity: 1,
               },
               "30%": {
                 left: "140px",
                 bottom: "290px",
-                 transform: "scaleX(-1) rotate(60deg)",
-                 opacity: 1,
+                transform: "scaleX(-1) rotate(60deg)",
+                opacity: 1,
               },
               "80%": {
                 left: "85px",
                 bottom: "30px",
-                 transform: "scaleX(-1) rotate(60deg)",
-                 opacity: 1,
+                transform: "scaleX(-1) rotate(60deg)",
+                opacity: 1,
               },
               "90%": {
                 left: "80px",
                 bottom: "-5px",
-                 transform: "scaleX(-1) rotate(-18deg)",
-                  opacity: 1,
+                transform: "scaleX(-1) rotate(-18deg)",
+                opacity: 1,
               },
               "100%": {
                 left: "80px",
                 bottom: "-5px",
-                  transform: "scaleX(-1) rotate(-18deg)",
-                  opacity: 0,
+                transform: "scaleX(-1) rotate(-18deg)",
+                opacity: 0,
               },
             },
             animation: isOpen
@@ -326,6 +361,16 @@ export default function hankButton({
           />
         </Box>
       </Box>
+      <span className="sparkles" aria-hidden>
+        {sparkles.map((s: Sparkle) => (
+          <i
+            key={s.id}
+            className="sparkle"
+            style={{ left: s.left, top: s.top, ["--size" as string]: s.size }}
+            data-sparkle="🤿"
+          />
+        ))}
+      </span>
     </Box>
   );
 }

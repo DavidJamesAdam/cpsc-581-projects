@@ -24,7 +24,7 @@ export default function Home() {
           zIndex: -1,
         }}
       />
-      <div className="grid grid-cols-2 relative left-80 top-45">
+      <div className="grid grid-cols-2 relative left-120 top-35">
         <DavidButton />
         <Image
           src="/green-vinyl-record-svgrepo-com.svg"
@@ -45,16 +45,16 @@ export default function Home() {
           alt="svg of record"
         />
       </div>
-      <div className="relative left-260 top-85">
+      <div className="relative left-340 top-105">
         <AnimatedImage />
       </div>
-      <div className="relative left-140 top-5">
+      <div className="relative left-190 top-30">
         <AnimatedBook trigger={bookTrigger} />
       </div>
-      <div>
+      <div className="relative left-450 top-85">
         <HankButton />
       </div>
-      <div>
+      <div className="relative left-100 -top-64">
         <CollinButton />
       </div>
     </main>
