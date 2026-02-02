@@ -1,14 +1,28 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import Image from "next/image";
 
 export default function hankButton() {
   const [isOpen, setIsOpen] = useState(false);
+  const [vbAnimation, setVbAnimation] = useState(false);
 
   const handleClick = () => {
     setIsOpen(!isOpen);
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      // Start VB animation when door opens
+      const timer = setTimeout(() => {
+        setVbAnimation(true);
+      }, 500); // Wait for door to open
+      return () => clearTimeout(timer);
+    } else {
+      // Reset animation when door closes
+      setVbAnimation(false);
+    }
+  }, [isOpen]);
 
   return (
     <Box
@@ -107,7 +121,7 @@ export default function hankButton() {
         />
       </Box>
 
-      {/* Closet interior (visible when open) - snowboard */}
+      {/* Closet interior (visible when open) - snowboard & Volleyball */}
       <Box
         sx={{
           position: "absolute",
@@ -124,18 +138,51 @@ export default function hankButton() {
           justifyContent: "flex-start",
         }}
       >
-        <Image
-          src="/VB.svg"
-          alt="VB"
-          width={200}
-          height={200}
-          style={{
-            objectFit: "contain",
-            maxWidth: "30%",
-            maxHeight: "30%",
-            marginLeft: "5px",
+        {/* VB with animation - starts at initial position, falls when door opens */}
+        <Box
+          sx={{
+            position: "absolute",
+            left: "5px",
+            bottom: "0px", 
+            "@keyframes vbFallAndSlide": {
+              "0%": {
+                transform: "translate(0, 0)",
+              },
+              "10%": {
+                transform: "translate(0, 25px)", 
+              },
+              "20%": {
+                transform: "translate(0, 5px)", 
+              },
+              "30%": {
+                transform: "translate(0, 25px)", 
+              },
+              "40%": {
+                transform: "translate(0, 18px)", 
+              },
+              "50%": {
+                transform: "translate(0, 25px)", 
+              },
+              "100%": {
+                transform: "translate(0, 25px)",
+              },
+            },
+            animation: vbAnimation ? "vbFallAndSlide 2.5s ease-in-out forwards" : "none",
           }}
-        />
+        >
+          <Image
+            src="/VB.svg"
+            alt="VB"
+            width={200}
+            height={200}
+            style={{
+              objectFit: "contain",
+              maxWidth: "30%",
+              maxHeight: "30%",
+            }}
+          />
+        </Box>
+        {/* SB3 - stays in place */}
         <Image
           src="/SB3.png"
           alt="Snowboard"
@@ -145,7 +192,7 @@ export default function hankButton() {
             objectFit: "contain",
             maxWidth: "75%",
             maxHeight: "75%",
-            marginLeft: "27px",
+            marginLeft: "106px",
           }}
         />
       </Box>
