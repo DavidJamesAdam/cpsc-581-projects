@@ -144,8 +144,7 @@ export default function DavidButton({
           alt="svg of record"
         />
         {children}
-      </Button>
-      <span className="sparkles" aria-hidden>
+              <span className="sparkles" aria-hidden>
         {sparkles.map((s: Sparkle) => (
           <i
             key={s.id}
@@ -155,6 +154,7 @@ export default function DavidButton({
           />
         ))}
       </span>
+      </Button>
       {notes.map((note) => (
         <span key={note.id} className="music-note" style={{ left: note.left }}>
           ♫
