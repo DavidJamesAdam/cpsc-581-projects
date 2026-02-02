@@ -4,24 +4,24 @@
 
 @keyframes move {
   0% {
-    transform: translateX(-10);
+    transform: rotate(-10deg);
   }
   15% {
-    transform: translateX(10);
+    transform: rotate(10deg);
   }
   30% {
-    transform: translateX(-10);
+    transform: rotate(-10deg);
   }
   45% {
-    transform: translateX(10);
+    transform: rotate(10deg);
   }
   60% {
-    transform: translateX(-10);
+    transform: rotate(-10deg);
   }
   75% {
-    transform: translateX(10);
+    transform: rotate(10deg);
   }
   100% {
-    transform: translateX(-10);
+    transform: rotate(-10deg);
   }
 }
