@@ -20,6 +20,26 @@ const PINKY_TIP = 20, PINKY_PIP = 18;
 const PREVIEW_WIDTH = 240;
 const PREVIEW_HEIGHT = 180;
 
+/** Threshold for "touching" in normalized coords (0-1) */
+const TOUCH_THRESHOLD = 0.06;
+
+/**
+ * Thumb is closed if thumb tip is touching any other joint; otherwise open.
+ */
+function isThumbClosed(landmarks) {
+  if (!landmarks || landmarks.length < 21) return false;
+
+  const dist = (a, b) =>
+    Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
+
+  const thumbTip = landmarks[THUMB_TIP];
+  for (let i = 0; i < landmarks.length; i++) {
+    if (i === THUMB_TIP) continue;
+    if (dist(thumbTip, landmarks[i]) < TOUCH_THRESHOLD) return true;
+  }
+  return false;
+}
+
 /**
  * Check if "two" gesture: only index and middle fingers extended, others closed.
  * Uses landmark positions: extended = tip further from wrist than PIP.
@@ -48,11 +68,35 @@ function isTwoGesture(landmarks) {
   const pinkyClosed =
     dist(landmarks[PINKY_TIP], wrist) <= dist(landmarks[PINKY_PIP], wrist) * 1.15;
 
-  // Thumb closed: tip closer to wrist than IP (curled)
-  const thumbClosed =
-    dist(landmarks[THUMB_TIP], wrist) <= dist(landmarks[THUMB_IP], wrist) * 1.15;
+  // Thumb closed: tip touching any other joint
+  const thumbClosed = isThumbClosed(landmarks);
 
   return indexExtended && middleExtended && ringClosed && pinkyClosed && thumbClosed;
+}
+
+/**
+ * Check if all fingers are closed (fist): thumb, index, middle, ring, pinky.
+ */
+function isAllFingersClosed(landmarks) {
+  if (!landmarks || landmarks.length < 21) return false;
+
+  const dist = (a, b) =>
+    Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
+
+  const wrist = landmarks[WRIST];
+
+  // Thumb closed: tip touching any other joint
+  const thumbClosed = isThumbClosed(landmarks);
+  const indexClosed =
+    dist(landmarks[INDEX_TIP], wrist) <= dist(landmarks[INDEX_PIP], wrist) * 1.15;
+  const middleClosed =
+    dist(landmarks[MIDDLE_TIP], wrist) <= dist(landmarks[MIDDLE_PIP], wrist) * 1.15;
+  const ringClosed =
+    dist(landmarks[RING_TIP], wrist) <= dist(landmarks[RING_PIP], wrist) * 1.15;
+  const pinkyClosed =
+    dist(landmarks[PINKY_TIP], wrist) <= dist(landmarks[PINKY_PIP], wrist) * 1.15;
+
+  return thumbClosed && indexClosed && middleClosed && ringClosed && pinkyClosed;
 }
 
 /**
@@ -118,6 +162,9 @@ export async function initHandDetection() {
     .gesture-text.visible {
       opacity: 1;
     }
+    .gesture-text.stop {
+      color: #f87171;
+    }
   `;
 
   document.head.appendChild(style);
@@ -154,6 +201,7 @@ export async function initHandDetection() {
 
   let lastVideoTime = -1;
   let lastLandmarks = [];
+  let allClosedStartTime = null;
 
   async function detectGesture() {
     if (video.readyState < 2) {
@@ -171,15 +219,27 @@ export async function initHandDetection() {
 
       lastLandmarks = results.landmarks || [];
 
-      let detected = false;
-      if (lastLandmarks.length > 0) {
-        detected = lastLandmarks.some(isTwoGesture);
-      }
+      const twoGesture = lastLandmarks.length > 0 && lastLandmarks.some(isTwoGesture);
+      const allClosed = lastLandmarks.length > 0 && lastLandmarks.some(isAllFingersClosed);
 
-      if (detected) {
+      if (twoGesture) {
+        allClosedStartTime = null;
         gestureText.textContent = "start recording";
+        gestureText.classList.remove("stop");
         gestureText.classList.add("visible");
+      } else if (allClosed) {
+        if (allClosedStartTime === null) {
+          allClosedStartTime = now;
+        }
+        if (now - allClosedStartTime >= 2) {
+          gestureText.textContent = "stop recording";
+          gestureText.classList.add("stop");
+          gestureText.classList.add("visible");
+        } else {
+          gestureText.classList.remove("visible");
+        }
       } else {
+        allClosedStartTime = null;
         gestureText.classList.remove("visible");
       }
     }
