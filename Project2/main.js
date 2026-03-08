@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from 'lil-gui';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+import { initHandDetection } from './handDetection.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -203,4 +204,7 @@ folder.add({w: "Move (Translate)"}, "w").name("W").disable();
 folder.add({e: "Rotate"}, "e").name("E").disable();
 folder.add({r: "Scale"}, "r").name("R").disable();
 folder.open();
+
+initHandDetection().catch(console.error);
+
 renderer.setAnimationLoop(animate);
