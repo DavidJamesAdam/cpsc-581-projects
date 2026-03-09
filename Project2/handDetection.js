@@ -355,7 +355,6 @@ export async function initHandDetection(options = {}) {
     numHands: 1,
   });
 
-  let lastVideoTime = -1;
   let lastLandmarks = [];
   let isRecording = false;
   let twoGestureStartTime = null;
@@ -388,11 +387,8 @@ export async function initHandDetection(options = {}) {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const now = performance.now() / 1000;
-    if (video.currentTime !== lastVideoTime) {
-      lastVideoTime = video.currentTime;
-      const results = handLandmarker.detectForVideo(video, now * 1000);
-
-      lastLandmarks = results.landmarks || [];
+    const results = handLandmarker.detectForVideo(video, now * 1000);
+    lastLandmarks = results.landmarks || [];
 
       const twoGesture = lastLandmarks.length > 0 && lastLandmarks.some(isTwoGesture);
       const allClosed = lastLandmarks.length > 0 && lastLandmarks.some(isAllFingersClosed);
@@ -717,7 +713,6 @@ export async function initHandDetection(options = {}) {
         if (selectTextElement) selectTextElement.style.opacity = "0";
         gestureText.classList.remove("visible");
       }
-    }
 
     // Hand movement for axis value control: up = increase, down = decrease
     if (
