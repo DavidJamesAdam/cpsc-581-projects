@@ -1,8 +1,3 @@
-/**
- * Hand detection overlay with MediaPipe Hand Landmarker.
- * Detects "two" gesture (index + middle finger extended) and shows "start recording" text.
- */
-
 import {
   FilesetResolver,
   HandLandmarker,
@@ -20,12 +15,10 @@ const PINKY_TIP = 20, PINKY_PIP = 18;
 const PREVIEW_WIDTH = 240;
 const PREVIEW_HEIGHT = 180;
 
-/** Threshold for "touching" in normalized coords (0-1) */
+// Threshold for "touching"
 const TOUCH_THRESHOLD = 0.06;
 
-/**
- * Thumb is closed if thumb tip is touching any other joint; otherwise open.
- */
+// Thumb is closed if thumb tip is touching any other joint; otherwise open.
 function isThumbClosed(landmarks) {
   if (!landmarks || landmarks.length < 21) return false;
 
@@ -40,10 +33,29 @@ function isThumbClosed(landmarks) {
   return false;
 }
 
-/**
- * Check if "two" gesture: only index and middle fingers extended, others closed.
- * Uses landmark positions: extended = tip further from wrist than PIP.
- */
+// one gesture: only index finger extended (for selecting object)
+function isOneGesture(landmarks) {
+  if (!landmarks || landmarks.length < 21) return false;
+
+  const dist = (a, b) =>
+    Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
+
+  const wrist = landmarks[WRIST];
+
+  const indexExtended =
+    dist(landmarks[INDEX_TIP], wrist) > dist(landmarks[INDEX_PIP], wrist) * 1.1;
+  const middleClosed =
+    dist(landmarks[MIDDLE_TIP], wrist) <= dist(landmarks[MIDDLE_PIP], wrist) * 1.15;
+  const ringClosed =
+    dist(landmarks[RING_TIP], wrist) <= dist(landmarks[RING_PIP], wrist) * 1.15;
+  const pinkyClosed =
+    dist(landmarks[PINKY_TIP], wrist) <= dist(landmarks[PINKY_PIP], wrist) * 1.15;
+  const thumbClosed = isThumbClosed(landmarks);
+
+  return indexExtended && middleClosed && ringClosed && pinkyClosed && thumbClosed;
+}
+
+// start recording gesture
 function isTwoGesture(landmarks) {
   if (!landmarks || landmarks.length < 21) return false;
 
@@ -74,9 +86,74 @@ function isTwoGesture(landmarks) {
   return indexExtended && middleExtended && ringClosed && pinkyClosed && thumbClosed;
 }
 
-/**
- * Check if all fingers are closed (fist): thumb, index, middle, ring, pinky.
- */
+// three gesture: index, middle, ring extended; thumb and pinky closed
+function isThreeGesture(landmarks) {
+  if (!landmarks || landmarks.length < 21) return false;
+
+  const dist = (a, b) =>
+    Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
+
+  const wrist = landmarks[WRIST];
+
+  const indexExtended =
+    dist(landmarks[INDEX_TIP], wrist) > dist(landmarks[INDEX_PIP], wrist) * 1.1;
+  const middleExtended =
+    dist(landmarks[MIDDLE_TIP], wrist) > dist(landmarks[MIDDLE_PIP], wrist) * 1.1;
+  const ringExtended =
+    dist(landmarks[RING_TIP], wrist) > dist(landmarks[RING_PIP], wrist) * 1.1;
+  const pinkyClosed =
+    dist(landmarks[PINKY_TIP], wrist) <= dist(landmarks[PINKY_PIP], wrist) * 1.15;
+  const thumbClosed = isThumbClosed(landmarks);
+
+  return indexExtended && middleExtended && ringExtended && pinkyClosed && thumbClosed;
+}
+
+// four gesture: index, middle, ring, pinky extended; thumb closed
+function isFourGesture(landmarks) {
+  if (!landmarks || landmarks.length < 21) return false;
+
+  const dist = (a, b) =>
+    Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
+
+  const wrist = landmarks[WRIST];
+
+  const indexExtended =
+    dist(landmarks[INDEX_TIP], wrist) > dist(landmarks[INDEX_PIP], wrist) * 1.1;
+  const middleExtended =
+    dist(landmarks[MIDDLE_TIP], wrist) > dist(landmarks[MIDDLE_PIP], wrist) * 1.1;
+  const ringExtended =
+    dist(landmarks[RING_TIP], wrist) > dist(landmarks[RING_PIP], wrist) * 1.1;
+  const pinkyExtended =
+    dist(landmarks[PINKY_TIP], wrist) > dist(landmarks[PINKY_PIP], wrist) * 1.1;
+  const thumbClosed = isThumbClosed(landmarks);
+
+  return indexExtended && middleExtended && ringExtended && pinkyExtended && thumbClosed;
+}
+
+// five gesture: all fingers extended
+function isFiveGesture(landmarks) {
+  if (!landmarks || landmarks.length < 21) return false;
+
+  const dist = (a, b) =>
+    Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
+
+  const wrist = landmarks[WRIST];
+
+  const indexExtended =
+    dist(landmarks[INDEX_TIP], wrist) > dist(landmarks[INDEX_PIP], wrist) * 1.1;
+  const middleExtended =
+    dist(landmarks[MIDDLE_TIP], wrist) > dist(landmarks[MIDDLE_PIP], wrist) * 1.1;
+  const ringExtended =
+    dist(landmarks[RING_TIP], wrist) > dist(landmarks[RING_PIP], wrist) * 1.1;
+  const pinkyExtended =
+    dist(landmarks[PINKY_TIP], wrist) > dist(landmarks[PINKY_PIP], wrist) * 1.1;
+  const thumbExtended =
+    dist(landmarks[THUMB_TIP], wrist) > dist(landmarks[THUMB_IP], wrist) * 1.1;
+
+  return indexExtended && middleExtended && ringExtended && pinkyExtended && thumbExtended;
+}
+
+// stop recording gesture
 function isAllFingersClosed(landmarks) {
   if (!landmarks || landmarks.length < 21) return false;
 
@@ -99,10 +176,19 @@ function isAllFingersClosed(landmarks) {
   return thumbClosed && indexClosed && middleClosed && ringClosed && pinkyClosed;
 }
 
-/**
- * Initialize the hand detection overlay in the upper-left corner.
- */
-export async function initHandDetection() {
+//  Initialize the hand detection overlay in the upper-left corner.
+export async function initHandDetection(options = {}) {
+  const {
+    onOneGestureSelect,
+    onTwoGestureSelect,
+    onStartRecording,
+    onStopRecording,
+    onThreeGestureSelect,
+    onFourGestureSelect,
+    onFiveGestureSelect,
+    isObjectSelected,
+    selectTextElement,
+  } = options;
   const container = document.createElement("div");
   container.id = "hand-detection-overlay";
   container.innerHTML = `
@@ -201,7 +287,19 @@ export async function initHandDetection() {
 
   let lastVideoTime = -1;
   let lastLandmarks = [];
+  let isRecording = false;
+  let twoGestureStartTime = null;
+  let twoGestureFired = false;
   let allClosedStartTime = null;
+  let allClosedFired = false;
+  let oneGestureStartTime = null;
+  let oneGestureFired = false;
+  let threeGestureStartTime = null;
+  let threeGestureFired = false;
+  let fourGestureStartTime = null;
+  let fourGestureFired = false;
+  let fiveGestureStartTime = null;
+  let fiveGestureFired = false;
 
   async function detectGesture() {
     if (video.readyState < 2) {
@@ -221,25 +319,190 @@ export async function initHandDetection() {
 
       const twoGesture = lastLandmarks.length > 0 && lastLandmarks.some(isTwoGesture);
       const allClosed = lastLandmarks.length > 0 && lastLandmarks.some(isAllFingersClosed);
+      const oneGesture = lastLandmarks.length > 0 && lastLandmarks.some(isOneGesture);
+      const objectSelected = isObjectSelected?.() ?? false;
+      const threeGesture = objectSelected && lastLandmarks.length > 0 && lastLandmarks.some(isThreeGesture);
+      const fourGesture = objectSelected && lastLandmarks.length > 0 && lastLandmarks.some(isFourGesture);
+      const fiveGesture = objectSelected && lastLandmarks.length > 0 && lastLandmarks.some(isFiveGesture);
 
       if (twoGesture) {
         allClosedStartTime = null;
-        gestureText.textContent = "start recording";
-        gestureText.classList.remove("stop");
-        gestureText.classList.add("visible");
+        allClosedFired = false;
+        oneGestureStartTime = null;
+        oneGestureFired = false;
+        threeGestureStartTime = null;
+        threeGestureFired = false;
+        fourGestureStartTime = null;
+        fourGestureFired = false;
+        fiveGestureStartTime = null;
+        fiveGestureFired = false;
+        if (twoGestureStartTime === null) {
+          twoGestureStartTime = now;
+        }
+        if (now - twoGestureStartTime >= 1) {
+          if (selectTextElement) {
+            selectTextElement.textContent = "deselect";
+            selectTextElement.style.opacity = "1";
+          } else {
+            gestureText.textContent = "deselect";
+            gestureText.classList.remove("stop");
+            gestureText.classList.add("visible");
+          }
+          if (!twoGestureFired && onTwoGestureSelect) {
+            twoGestureFired = true;
+            onTwoGestureSelect();
+          }
+        } else {
+          if (selectTextElement) selectTextElement.style.opacity = "0";
+          else gestureText.classList.remove("visible");
+        }
       } else if (allClosed) {
+        twoGestureStartTime = null;
+        twoGestureFired = false;
+        oneGestureStartTime = null;
+        oneGestureFired = false;
+        threeGestureStartTime = null;
+        threeGestureFired = false;
+        fourGestureStartTime = null;
+        fourGestureFired = false;
+        fiveGestureStartTime = null;
+        fiveGestureFired = false;
         if (allClosedStartTime === null) {
           allClosedStartTime = now;
         }
-        if (now - allClosedStartTime >= 2) {
-          gestureText.textContent = "stop recording";
-          gestureText.classList.add("stop");
+        if (now - allClosedStartTime >= 1) {
+          if (!allClosedFired) {
+            allClosedFired = true;
+            if (!isRecording) {
+              gestureText.textContent = "start recording";
+              gestureText.classList.remove("stop");
+              isRecording = true;
+              onStartRecording?.();
+            } else {
+              gestureText.textContent = "stop recording";
+              gestureText.classList.add("stop");
+              isRecording = false;
+              onStopRecording?.();
+            }
+          }
           gestureText.classList.add("visible");
         } else {
           gestureText.classList.remove("visible");
         }
-      } else {
+      } else if (oneGesture) {
+        twoGestureStartTime = null;
+        twoGestureFired = false;
         allClosedStartTime = null;
+        allClosedFired = false;
+        threeGestureStartTime = null;
+        threeGestureFired = false;
+        fourGestureStartTime = null;
+        fourGestureFired = false;
+        fiveGestureStartTime = null;
+        fiveGestureFired = false;
+        if (oneGestureStartTime === null) {
+          oneGestureStartTime = now;
+        }
+        if (now - oneGestureStartTime >= 1) {
+          if (selectTextElement) {
+            selectTextElement.textContent = "select";
+            selectTextElement.style.opacity = "1";
+          } else {
+            gestureText.textContent = "select";
+            gestureText.classList.remove("stop");
+            gestureText.classList.add("visible");
+          }
+          if (!oneGestureFired && onOneGestureSelect) {
+            oneGestureFired = true;
+            onOneGestureSelect();
+          }
+        } else {
+          if (selectTextElement) selectTextElement.style.opacity = "0";
+          else gestureText.classList.remove("visible");
+        }
+      } else if (threeGesture) {
+        twoGestureStartTime = null;
+        twoGestureFired = false;
+        allClosedStartTime = null;
+        allClosedFired = false;
+        oneGestureStartTime = null;
+        fourGestureStartTime = null;
+        fourGestureFired = false;
+        fiveGestureStartTime = null;
+        fiveGestureFired = false;
+        if (threeGestureStartTime === null) threeGestureStartTime = now;
+        if (now - threeGestureStartTime >= 1) {
+          if (selectTextElement) {
+            selectTextElement.textContent = "translate";
+            selectTextElement.style.opacity = "1";
+          }
+          if (!threeGestureFired && onThreeGestureSelect) {
+            threeGestureFired = true;
+            onThreeGestureSelect();
+          }
+        } else {
+          if (selectTextElement) selectTextElement.style.opacity = "0";
+        }
+      } else if (fourGesture) {
+        twoGestureStartTime = null;
+        twoGestureFired = false;
+        allClosedStartTime = null;
+        allClosedFired = false;
+        oneGestureStartTime = null;
+        threeGestureStartTime = null;
+        threeGestureFired = false;
+        fiveGestureStartTime = null;
+        fiveGestureFired = false;
+        if (fourGestureStartTime === null) fourGestureStartTime = now;
+        if (now - fourGestureStartTime >= 1) {
+          if (selectTextElement) {
+            selectTextElement.textContent = "rotate";
+            selectTextElement.style.opacity = "1";
+          }
+          if (!fourGestureFired && onFourGestureSelect) {
+            fourGestureFired = true;
+            onFourGestureSelect();
+          }
+        } else {
+          if (selectTextElement) selectTextElement.style.opacity = "0";
+        }
+      } else if (fiveGesture) {
+        twoGestureStartTime = null;
+        twoGestureFired = false;
+        allClosedStartTime = null;
+        allClosedFired = false;
+        oneGestureStartTime = null;
+        threeGestureStartTime = null;
+        threeGestureFired = false;
+        fourGestureStartTime = null;
+        fourGestureFired = false;
+        if (fiveGestureStartTime === null) fiveGestureStartTime = now;
+        if (now - fiveGestureStartTime >= 1) {
+          if (selectTextElement) {
+            selectTextElement.textContent = "scale";
+            selectTextElement.style.opacity = "1";
+          }
+          if (!fiveGestureFired && onFiveGestureSelect) {
+            fiveGestureFired = true;
+            onFiveGestureSelect();
+          }
+        } else {
+          if (selectTextElement) selectTextElement.style.opacity = "0";
+        }
+      } else {
+        twoGestureStartTime = null;
+        twoGestureFired = false;
+        allClosedStartTime = null;
+        allClosedFired = false;
+        oneGestureStartTime = null;
+        oneGestureFired = false;
+        threeGestureStartTime = null;
+        threeGestureFired = false;
+        fourGestureStartTime = null;
+        fourGestureFired = false;
+        fiveGestureStartTime = null;
+        fiveGestureFired = false;
+        if (selectTextElement) selectTextElement.style.opacity = "0";
         gestureText.classList.remove("visible");
       }
     }

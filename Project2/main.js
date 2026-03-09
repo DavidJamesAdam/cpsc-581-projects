@@ -29,6 +29,28 @@ const camera = new THREE.PerspectiveCamera(
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+const selectTextEl = document.createElement("div");
+selectTextEl.id = "select-text-overlay";
+selectTextEl.textContent = "select";
+selectTextEl.style.cssText = `
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 20px;
+  background: rgba(0,0,0,0.75);
+  color: #4ade80;
+  font-family: system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 500;
+  transition: opacity 0.2s;
+`;
+document.body.appendChild(selectTextEl);
 const transformControls = new TransformControls(camera, renderer.domElement);
 scene.add(transformControls.getHelper());
 
@@ -205,6 +227,14 @@ folder.add({e: "Rotate"}, "e").name("E").disable();
 folder.add({r: "Scale"}, "r").name("R").disable();
 folder.open();
 
-initHandDetection().catch(console.error);
+initHandDetection({
+  onOneGestureSelect: () => selectObject(cubeGroup),
+  onTwoGestureSelect: () => deselectObject(),
+  onThreeGestureSelect: () => transformControls.setMode("translate"),
+  onFourGestureSelect: () => transformControls.setMode("rotate"),
+  onFiveGestureSelect: () => transformControls.setMode("scale"),
+  isObjectSelected: () => selectedObject !== null,
+  selectTextElement: selectTextEl,
+}).catch(console.error);
 
 renderer.setAnimationLoop(animate);
