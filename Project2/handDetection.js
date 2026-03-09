@@ -147,10 +147,75 @@ function isFiveGesture(landmarks) {
     dist(landmarks[RING_TIP], wrist) > dist(landmarks[RING_PIP], wrist) * 1.1;
   const pinkyExtended =
     dist(landmarks[PINKY_TIP], wrist) > dist(landmarks[PINKY_PIP], wrist) * 1.1;
-  const thumbExtended =
-    dist(landmarks[THUMB_TIP], wrist) > dist(landmarks[THUMB_IP], wrist) * 1.1;
+  const thumbExtended = !isThumbClosed(landmarks);
 
   return indexExtended && middleExtended && ringExtended && pinkyExtended && thumbExtended;
+}
+
+// pinky + ring: pinky and ring extended, others closed (for selecting y axis)
+function isPinkyRingGesture(landmarks) {
+  if (!landmarks || landmarks.length < 21) return false;
+
+  const dist = (a, b) =>
+    Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
+
+  const wrist = landmarks[WRIST];
+
+  const indexClosed =
+    dist(landmarks[INDEX_TIP], wrist) <= dist(landmarks[INDEX_PIP], wrist) * 1.15;
+  const middleClosed =
+    dist(landmarks[MIDDLE_TIP], wrist) <= dist(landmarks[MIDDLE_PIP], wrist) * 1.15;
+  const ringExtended =
+    dist(landmarks[RING_TIP], wrist) > dist(landmarks[RING_PIP], wrist) * 1.1;
+  const pinkyExtended =
+    dist(landmarks[PINKY_TIP], wrist) > dist(landmarks[PINKY_PIP], wrist) * 1.1;
+  const thumbClosed = isThumbClosed(landmarks);
+
+  return indexClosed && middleClosed && ringExtended && pinkyExtended && thumbClosed;
+}
+
+// pinky + ring + middle: pinky, ring, middle extended, thumb and index closed (for selecting z axis)
+function isPinkyRingMiddleGesture(landmarks) {
+  if (!landmarks || landmarks.length < 21) return false;
+
+  const dist = (a, b) =>
+    Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
+
+  const wrist = landmarks[WRIST];
+
+  const indexClosed =
+    dist(landmarks[INDEX_TIP], wrist) <= dist(landmarks[INDEX_PIP], wrist) * 1.15;
+  const middleExtended =
+    dist(landmarks[MIDDLE_TIP], wrist) > dist(landmarks[MIDDLE_PIP], wrist) * 1.1;
+  const ringExtended =
+    dist(landmarks[RING_TIP], wrist) > dist(landmarks[RING_PIP], wrist) * 1.1;
+  const pinkyExtended =
+    dist(landmarks[PINKY_TIP], wrist) > dist(landmarks[PINKY_PIP], wrist) * 1.1;
+  const thumbClosed = isThumbClosed(landmarks);
+
+  return indexClosed && middleExtended && ringExtended && pinkyExtended && thumbClosed;
+}
+
+// pinky only: only pinky finger extended (for selecting x axis)
+function isPinkyOnlyGesture(landmarks) {
+  if (!landmarks || landmarks.length < 21) return false;
+
+  const dist = (a, b) =>
+    Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
+
+  const wrist = landmarks[WRIST];
+
+  const indexClosed =
+    dist(landmarks[INDEX_TIP], wrist) <= dist(landmarks[INDEX_PIP], wrist) * 1.15;
+  const middleClosed =
+    dist(landmarks[MIDDLE_TIP], wrist) <= dist(landmarks[MIDDLE_PIP], wrist) * 1.15;
+  const ringClosed =
+    dist(landmarks[RING_TIP], wrist) <= dist(landmarks[RING_PIP], wrist) * 1.15;
+  const pinkyExtended =
+    dist(landmarks[PINKY_TIP], wrist) > dist(landmarks[PINKY_PIP], wrist) * 1.1;
+  const thumbClosed = isThumbClosed(landmarks);
+
+  return indexClosed && middleClosed && ringClosed && pinkyExtended && thumbClosed;
 }
 
 // stop recording gesture
@@ -186,7 +251,12 @@ export async function initHandDetection(options = {}) {
     onThreeGestureSelect,
     onFourGestureSelect,
     onFiveGestureSelect,
+    onPinkyGestureSelect,
+    onPinkyRingGestureSelect,
+    onPinkyRingMiddleGestureSelect,
+    onHandPositionChange,
     isObjectSelected,
+    isSingleAxisSelected,
     selectTextElement,
   } = options;
   const container = document.createElement("div");
@@ -300,6 +370,13 @@ export async function initHandDetection(options = {}) {
   let fourGestureFired = false;
   let fiveGestureStartTime = null;
   let fiveGestureFired = false;
+  let pinkyGestureStartTime = null;
+  let pinkyGestureFired = false;
+  let pinkyRingGestureStartTime = null;
+  let pinkyRingGestureFired = false;
+  let pinkyRingMiddleGestureStartTime = null;
+  let pinkyRingMiddleGestureFired = false;
+  let lastHandY = null;
 
   async function detectGesture() {
     if (video.readyState < 2) {
@@ -324,6 +401,9 @@ export async function initHandDetection(options = {}) {
       const threeGesture = objectSelected && lastLandmarks.length > 0 && lastLandmarks.some(isThreeGesture);
       const fourGesture = objectSelected && lastLandmarks.length > 0 && lastLandmarks.some(isFourGesture);
       const fiveGesture = objectSelected && lastLandmarks.length > 0 && lastLandmarks.some(isFiveGesture);
+      const pinkyGesture = objectSelected && lastLandmarks.length > 0 && lastLandmarks.some(isPinkyOnlyGesture);
+      const pinkyRingGesture = objectSelected && lastLandmarks.length > 0 && lastLandmarks.some(isPinkyRingGesture);
+      const pinkyRingMiddleGesture = objectSelected && lastLandmarks.length > 0 && lastLandmarks.some(isPinkyRingMiddleGesture);
 
       if (twoGesture) {
         allClosedStartTime = null;
@@ -336,6 +416,12 @@ export async function initHandDetection(options = {}) {
         fourGestureFired = false;
         fiveGestureStartTime = null;
         fiveGestureFired = false;
+        pinkyGestureStartTime = null;
+        pinkyGestureFired = false;
+        pinkyRingGestureStartTime = null;
+        pinkyRingGestureFired = false;
+        pinkyRingMiddleGestureStartTime = null;
+        pinkyRingMiddleGestureFired = false;
         if (twoGestureStartTime === null) {
           twoGestureStartTime = now;
         }
@@ -367,6 +453,12 @@ export async function initHandDetection(options = {}) {
         fourGestureFired = false;
         fiveGestureStartTime = null;
         fiveGestureFired = false;
+        pinkyGestureStartTime = null;
+        pinkyGestureFired = false;
+        pinkyRingGestureStartTime = null;
+        pinkyRingGestureFired = false;
+        pinkyRingMiddleGestureStartTime = null;
+        pinkyRingMiddleGestureFired = false;
         if (allClosedStartTime === null) {
           allClosedStartTime = now;
         }
@@ -400,6 +492,12 @@ export async function initHandDetection(options = {}) {
         fourGestureFired = false;
         fiveGestureStartTime = null;
         fiveGestureFired = false;
+        pinkyGestureStartTime = null;
+        pinkyGestureFired = false;
+        pinkyRingGestureStartTime = null;
+        pinkyRingGestureFired = false;
+        pinkyRingMiddleGestureStartTime = null;
+        pinkyRingMiddleGestureFired = false;
         if (oneGestureStartTime === null) {
           oneGestureStartTime = now;
         }
@@ -430,6 +528,12 @@ export async function initHandDetection(options = {}) {
         fourGestureFired = false;
         fiveGestureStartTime = null;
         fiveGestureFired = false;
+        pinkyGestureStartTime = null;
+        pinkyGestureFired = false;
+        pinkyRingGestureStartTime = null;
+        pinkyRingGestureFired = false;
+        pinkyRingMiddleGestureStartTime = null;
+        pinkyRingMiddleGestureFired = false;
         if (threeGestureStartTime === null) threeGestureStartTime = now;
         if (now - threeGestureStartTime >= 1) {
           if (selectTextElement) {
@@ -453,6 +557,12 @@ export async function initHandDetection(options = {}) {
         threeGestureFired = false;
         fiveGestureStartTime = null;
         fiveGestureFired = false;
+        pinkyGestureStartTime = null;
+        pinkyGestureFired = false;
+        pinkyRingGestureStartTime = null;
+        pinkyRingGestureFired = false;
+        pinkyRingMiddleGestureStartTime = null;
+        pinkyRingMiddleGestureFired = false;
         if (fourGestureStartTime === null) fourGestureStartTime = now;
         if (now - fourGestureStartTime >= 1) {
           if (selectTextElement) {
@@ -476,6 +586,12 @@ export async function initHandDetection(options = {}) {
         threeGestureFired = false;
         fourGestureStartTime = null;
         fourGestureFired = false;
+        pinkyGestureStartTime = null;
+        pinkyGestureFired = false;
+        pinkyRingGestureStartTime = null;
+        pinkyRingGestureFired = false;
+        pinkyRingMiddleGestureStartTime = null;
+        pinkyRingMiddleGestureFired = false;
         if (fiveGestureStartTime === null) fiveGestureStartTime = now;
         if (now - fiveGestureStartTime >= 1) {
           if (selectTextElement) {
@@ -485,6 +601,96 @@ export async function initHandDetection(options = {}) {
           if (!fiveGestureFired && onFiveGestureSelect) {
             fiveGestureFired = true;
             onFiveGestureSelect();
+          }
+        } else {
+          if (selectTextElement) selectTextElement.style.opacity = "0";
+        }
+      } else if (pinkyRingMiddleGesture) {
+        twoGestureStartTime = null;
+        twoGestureFired = false;
+        allClosedStartTime = null;
+        allClosedFired = false;
+        oneGestureStartTime = null;
+        oneGestureFired = false;
+        threeGestureStartTime = null;
+        threeGestureFired = false;
+        fourGestureStartTime = null;
+        fourGestureFired = false;
+        fiveGestureStartTime = null;
+        fiveGestureFired = false;
+        pinkyGestureStartTime = null;
+        pinkyGestureFired = false;
+        pinkyRingGestureStartTime = null;
+        pinkyRingGestureFired = false;
+        if (pinkyRingMiddleGestureStartTime === null) pinkyRingMiddleGestureStartTime = now;
+        if (now - pinkyRingMiddleGestureStartTime >= 1) {
+          if (selectTextElement) {
+            selectTextElement.textContent = "z axis";
+            selectTextElement.style.opacity = "1";
+          }
+          if (!pinkyRingMiddleGestureFired && onPinkyRingMiddleGestureSelect) {
+            pinkyRingMiddleGestureFired = true;
+            onPinkyRingMiddleGestureSelect();
+          }
+        } else {
+          if (selectTextElement) selectTextElement.style.opacity = "0";
+        }
+      } else if (pinkyRingGesture) {
+        twoGestureStartTime = null;
+        twoGestureFired = false;
+        allClosedStartTime = null;
+        allClosedFired = false;
+        oneGestureStartTime = null;
+        oneGestureFired = false;
+        threeGestureStartTime = null;
+        threeGestureFired = false;
+        fourGestureStartTime = null;
+        fourGestureFired = false;
+        fiveGestureStartTime = null;
+        fiveGestureFired = false;
+        pinkyGestureStartTime = null;
+        pinkyGestureFired = false;
+        pinkyRingMiddleGestureStartTime = null;
+        pinkyRingMiddleGestureFired = false;
+        if (pinkyRingGestureStartTime === null) pinkyRingGestureStartTime = now;
+        if (now - pinkyRingGestureStartTime >= 1) {
+          if (selectTextElement) {
+            selectTextElement.textContent = "y axis";
+            selectTextElement.style.opacity = "1";
+          }
+          if (!pinkyRingGestureFired && onPinkyRingGestureSelect) {
+            pinkyRingGestureFired = true;
+            onPinkyRingGestureSelect();
+          }
+        } else {
+          if (selectTextElement) selectTextElement.style.opacity = "0";
+        }
+      } else if (pinkyGesture) {
+        twoGestureStartTime = null;
+        twoGestureFired = false;
+        allClosedStartTime = null;
+        allClosedFired = false;
+        oneGestureStartTime = null;
+        oneGestureFired = false;
+        threeGestureStartTime = null;
+        threeGestureFired = false;
+        fourGestureStartTime = null;
+        fourGestureFired = false;
+        fiveGestureStartTime = null;
+        fiveGestureFired = false;
+        pinkyRingGestureStartTime = null;
+        pinkyRingGestureFired = false;
+        pinkyRingMiddleGestureStartTime = null;
+        pinkyRingMiddleGestureFired = false;
+        if (pinkyGestureStartTime === null) pinkyGestureStartTime = now;
+        if (now - pinkyGestureStartTime >= 1) {
+          if (selectTextElement) {
+            selectTextElement.textContent = "x axis";
+            selectTextElement.style.opacity = "1";
+          }
+          if (!pinkyGestureFired && onPinkyGestureSelect) {
+            pinkyGestureFired = true;
+            onPinkyGestureSelect();
           }
         } else {
           if (selectTextElement) selectTextElement.style.opacity = "0";
@@ -502,9 +708,34 @@ export async function initHandDetection(options = {}) {
         fourGestureFired = false;
         fiveGestureStartTime = null;
         fiveGestureFired = false;
+        pinkyGestureStartTime = null;
+        pinkyGestureFired = false;
+        pinkyRingGestureStartTime = null;
+        pinkyRingGestureFired = false;
+        pinkyRingMiddleGestureStartTime = null;
+        pinkyRingMiddleGestureFired = false;
         if (selectTextElement) selectTextElement.style.opacity = "0";
         gestureText.classList.remove("visible");
       }
+    }
+
+    // Hand movement for axis value control: up = increase, down = decrease
+    if (
+      lastLandmarks.length > 0 &&
+      isObjectSelected?.() &&
+      isSingleAxisSelected?.() &&
+      onHandPositionChange
+    ) {
+      const handY = lastLandmarks[0][WRIST].y;
+      if (lastHandY !== null) {
+        const deltaY = lastHandY - handY; // positive = hand moved up
+        if (Math.abs(deltaY) > 0.005) {
+          onHandPositionChange(deltaY);
+        }
+      }
+      lastHandY = handY;
+    } else {
+      lastHandY = null;
     }
 
     // Draw hand landmarks
