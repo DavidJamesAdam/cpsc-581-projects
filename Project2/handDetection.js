@@ -500,11 +500,11 @@ export async function initHandDetection(options = {}) {
     requestAnimationFrame(detectLoop);
   }
 
-    // this is for MacOS, if you're on windows and runing with chrome/edge, comment this line and use the if statement code below instead
-  video.addEventListener("loadeddata", detectLoop);
-  // Windows with chrome/edge
-     if (video.readyState >= 2) {
-         console.log("initHandDetection: video already ready, starting detectLoop immediately");
-           detectLoop();
-   }
+    // this is for MacOS, if you're on windows and runing with chrome/edge, comment out this line and use the if statement code below instead
+    video.addEventListener("loadeddata", detectLoop);
+    // // Windows with chrome/edge
+    // if (video.readyState >= 2) {
+    //      // console.log("initHandDetection: video already ready, starting detectLoop immediately");
+    //      detectLoop();
+    // }
 }
