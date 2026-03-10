@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from 'lil-gui';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+import { initHandDetection } from './handDetection.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -28,6 +29,28 @@ const camera = new THREE.PerspectiveCamera(
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+const selectTextEl = document.createElement("div");
+selectTextEl.id = "select-text-overlay";
+selectTextEl.textContent = "select";
+selectTextEl.style.cssText = `
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 20px;
+  background: rgba(0,0,0,0.75);
+  color: #4ade80;
+  font-family: system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 500;
+  transition: opacity 0.2s;
+`;
+document.body.appendChild(selectTextEl);
 const transformControls = new TransformControls(camera, renderer.domElement);
 scene.add(transformControls.getHelper());
 
@@ -203,4 +226,72 @@ folder.add({w: "Move (Translate)"}, "w").name("W").disable();
 folder.add({e: "Rotate"}, "e").name("E").disable();
 folder.add({r: "Scale"}, "r").name("R").disable();
 folder.open();
+
+function setAllAxes() {
+  transformControls.showX = true;
+  transformControls.showY = true;
+  transformControls.showZ = true;
+}
+
+initHandDetection({
+  onOneGestureSelect: () => selectObject(cubeGroup),
+  onTwoGestureSelect: () => deselectObject(),
+  onThreeGestureSelect: () => {
+    setAllAxes();
+    transformControls.setMode("translate");
+  },
+  onFourGestureSelect: () => {
+    setAllAxes();
+    transformControls.setMode("rotate");
+  },
+  onFiveGestureSelect: () => {
+    setAllAxes();
+    transformControls.setMode("scale");
+  },
+  onPinkyGestureSelect: () => {
+    transformControls.showX = true;
+    transformControls.showY = false;
+    transformControls.showZ = false;
+  },
+  onPinkyRingGestureSelect: () => {
+    transformControls.showX = false;
+    transformControls.showY = true;
+    transformControls.showZ = false;
+  },
+  onPinkyRingMiddleGestureSelect: () => {
+    transformControls.showX = false;
+    transformControls.showY = false;
+    transformControls.showZ = true;
+  },
+  isObjectSelected: () => selectedObject !== null,
+  isSingleAxisSelected: () => {
+    const xOnly = transformControls.showX && !transformControls.showY && !transformControls.showZ;
+    const yOnly = !transformControls.showX && transformControls.showY && !transformControls.showZ;
+    const zOnly = !transformControls.showX && !transformControls.showY && transformControls.showZ;
+    return xOnly || yOnly || zOnly;
+  },
+  onHandPositionChange: (deltaY) => {
+    if (!selectedObject) return;
+    const mode = transformControls.getMode();
+    const sensitivity = 2;
+    const delta = deltaY * sensitivity;
+    const obj = selectedObject;
+    if (mode === "translate") {
+      if (transformControls.showX) obj.position.x += delta;
+      if (transformControls.showY) obj.position.y += delta;
+      if (transformControls.showZ) obj.position.z += delta;
+    } else if (mode === "rotate") {
+      if (transformControls.showX) obj.rotation.x += delta;
+      if (transformControls.showY) obj.rotation.y += delta;
+      if (transformControls.showZ) obj.rotation.z += delta;
+    } else if (mode === "scale") {
+      const minScale = 0.1;
+      if (transformControls.showX) obj.scale.x = Math.max(minScale, obj.scale.x + delta);
+      if (transformControls.showY) obj.scale.y = Math.max(minScale, obj.scale.y + delta);
+      if (transformControls.showZ) obj.scale.z = Math.max(minScale, obj.scale.z + delta);
+    }
+  },
+  selectTextElement: selectTextEl,
+}).catch(console.error);
+
 renderer.setAnimationLoop(animate);
