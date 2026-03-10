@@ -1,4 +1,4 @@
-# Project 2 — Hand Gesture 3D Controls
+# Project 2 — Hand Gesture CAD System Controls
 
 A CAD system controlled by hand gestures using MediaPipe Hand Landmarker. Point your hand at the camera and hold gestures for 1 second to trigger actions.
 
