@@ -1,6 +1,6 @@
 # Project 2 — Hand Gesture 3D Controls
 
-A 3D scene controlled by hand gestures using MediaPipe Hand Landmarker. Point your hand at the camera and hold gestures for 1 second to trigger actions.
+A CAD system controlled by hand gestures using MediaPipe Hand Landmarker. Point your hand at the camera and hold gestures for 1 second to trigger actions.
 
 ## How to Run
 
@@ -24,6 +24,26 @@ A 3D scene controlled by hand gestures using MediaPipe Hand Landmarker. Point yo
    - Works best in macOS, for Windows please see Tips section below
    - Good lighting helps gesture detection
 
+---
+
+## CAD System Input Methods
+
+1. MOUSE/CLICK
+   - Left-click on object: select
+   - Left-click on empty space: deselect
+
+2. KEYBOARD
+   - W : Switch to Translate (move) mode
+   - E : Switch to Rotate mode
+   - R : Switch to Scale mode
+
+3. MOUSE DRAG (TransformControls)
+   - When object selected: drag colored gizmos to translate, rotate, or scale
+   - Arrows for translation; arcs for rotation; cubes for scale
+
+4. MOUSE (OrbitControls)
+   - Orbit: rotate camera around scene
+   - Pan and zoom enabled with damping
 ---
 
 ## Gestures
